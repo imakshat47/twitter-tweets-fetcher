@@ -134,7 +134,7 @@ Pygments==2.6.1
 pyjsparser==2.7.1
 pylint==2.5.3
 pyparsing==2.4.7
-pypiwin32==223
+# pypiwin32==223
 PyPrind==2.11.2
 pyrsistent==0.16.0
 PySimpleGUI==4.29.0
