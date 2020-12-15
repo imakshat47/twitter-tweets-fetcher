@@ -17,7 +17,7 @@ access_token_secret = environ['A_SEC']
 class StdOutListener(StreamListener):
     def __init__(self):
         super().__init__()
-        self.max_tweets = 50000
+        self.max_tweets = 10000
         self.tweet_count = 0
         # open file
         self.file = open("output.json", 'a', encoding='UTF-8')
