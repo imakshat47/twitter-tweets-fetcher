@@ -126,7 +126,6 @@ prompt-toolkit==3.0.6
 protobuf==3.13.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
-PyAudio @ file:///C:/Users/Akshat/pipwin/PyAudio-0.2.11-cp38-cp38-win_amd64.whl
 pycodestyle==2.6.0
 pycparser==2.20
 pycryptodome==3.9.8
