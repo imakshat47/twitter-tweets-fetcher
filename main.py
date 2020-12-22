@@ -54,5 +54,6 @@ if __name__ == '__main__':
     except Exception as e:
         print("Error => ", e)
 
+
 # Command to run process
 # python twitter_streaming.py > twitter__dataset.json
