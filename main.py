@@ -2,6 +2,7 @@
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
+import pymongo
 import os
 from os import environ
 
@@ -17,43 +18,46 @@ access_token_secret = environ['A_SEC']
 class StdOutListener(StreamListener):
     def __init__(self):
         super().__init__()
-        self.max_tweets = 10
-        self.tweet_count = 0
-        # open file
-        self.file = open("output.json", 'a', encoding='UTF-8')
-        self.file.write("[\n")
+        self.max_tweets = 5000
+        self.tweet_count = 0        
+        self.tweets = []
 
-    def on_data(self, data):
-        try:
-            data
-        except BaseException as e:
-            print(str(e))
-        self.tweet_count += 1
+    def on_status(self, status):
         if(self.tweet_count == self.max_tweets):
-            self.file.write("\n]")
-            self.file.close()
+            # self.file.write("\n]")
+            print("tweets => ", self.tweets)
+            client = pymongo.MongoClient(environ['MONGO_URI'])
+            db = client['transio']
+            col = db['tweets']            
+            col.insert_one({"text": self.tweets })
+            client.close()            
             return(False)
-        else:
-            self.file.write(data + ",")
-            # close file
-            return True
+        else:            
+            try:
+                tweet = status.retweeted_status.text
+            except AttributeError as e:
+                tweet = status.text            
+            self.tweet_count += 1
+            self.tweets.append(tweet)
+
+        return True
+
+    def on_timeout(self):
+        print("TimeOut :", self.tweets)
 
     def on_error(self, status):
         print(status)
+        return True
 
 
 if __name__ == '__main__':
-
-    try:
-        # This handles Twitter authetification and the connection to Twitter Streaming API
-        auth = OAuthHandler(consumer_key, consumer_secret)
-        auth.set_access_token(access_token, access_token_secret)
-        stream = Stream(auth, StdOutListener())
-        # This line filter Twitter Streams to capture data by the keywords: 'python', 'javascript', 'ruby'
-        stream.filter(track=['up', 'bjp', 'farm', 'law', 'COVID', 'BB'])
-    except Exception as e:
-        print("Error => ", e)
-
+    
+    print("Process Starts /-/-/")    
+    auth = OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+    stream = Stream(auth, StdOutListener())    
+    stream.filter(track=['up', 'bjp', 'farmlaw', 'COVID', 'BB'])    
+    print("Process Ends /-/-/")
 
 # Command to run process
 # python twitter_streaming.py > twitter__dataset.json
