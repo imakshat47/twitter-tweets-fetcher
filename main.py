@@ -6,7 +6,7 @@ import pymongo
 import os
 from os import environ
 
-# Variables that contains the user credentials to access Twitter API
+# Variables that contain the user credentials to access Twitter API
 consumer_key = environ['C_KEY']
 consumer_secret = environ['C_SEC']
 access_token = environ['A_TOKEN']
@@ -18,32 +18,29 @@ access_token_secret = environ['A_SEC']
 class StdOutListener(StreamListener):
     def __init__(self):
         super().__init__()
-        self.max_tweets = 5000
-        self.tweet_count = 0        
+        self.max_tweets = 50000
+        self.tweet_count = 0
         self.tweets = []
+        self.client = pymongo.MongoClient(environ['MONGO_URI'])
+        db = self.client['transio']
+        self.col = db['tweets']
+
+    def on_timeout(self):
+        print("TimeOut !!")
 
     def on_status(self, status):
         if(self.tweet_count == self.max_tweets):
-            # self.file.write("\n]")
-            print("tweets => ", self.tweets)
-            client = pymongo.MongoClient(environ['MONGO_URI'])
-            db = client['transio']
-            col = db['tweets']            
-            col.insert_one({"text": self.tweets })
-            client.close()            
+            self.client.close()
             return(False)
-        else:            
+        else:
             try:
                 tweet = status.retweeted_status.text
             except AttributeError as e:
-                tweet = status.text            
+                tweet = status.text
             self.tweet_count += 1
-            self.tweets.append(tweet)
-
+            _lang = status.lang
+            self.col.insert_one({"text": tweet, "lang": _lang})
         return True
-
-    def on_timeout(self):
-        print("TimeOut :", self.tweets)
 
     def on_error(self, status):
         print(status)
@@ -51,12 +48,12 @@ class StdOutListener(StreamListener):
 
 
 if __name__ == '__main__':
-    
-    print("Process Starts /-/-/")    
+
+    print("Process Starts /-/-/")
     auth = OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
-    stream = Stream(auth, StdOutListener())    
-    stream.filter(track=['up', 'bjp', 'farmlaw', 'COVID', 'BB'])    
+    stream = Stream(auth, StdOutListener())
+    stream.filter(track=['up', 'bjp', 'farmlaw', "law", 'COVID', 'BB'])
     print("Process Ends /-/-/")
 
 # Command to run process
