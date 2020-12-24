@@ -1,3 +1,6 @@
+from tweepy import Stream
+from tweepy import OAuthHandler
+from tweepy.streaming import StreamListener
 import demoji
 import re
 import string
@@ -904,12 +907,65 @@ def handle_coded_emojis(processed_text):
         print('Err => ', e)
         pass
 
+
+# Import the necessary methods from tweepy library
+
+# Variables that contain the user credentials to access Twitter API
+consumer_key = environ['C_KEY']
+consumer_secret = environ['C_SEC']
+access_token = environ['A_TOKEN']
+access_token_secret = environ['A_SEC']
+
+# This is a basic listener that just prints received tweets to stdout.
+
+
+class StdOutListener(StreamListener):
+    def __init__(self):
+        super().__init__()
+        self.max_tweets = 50000
+        self.tweet_count = 0
+        self.tweets = []
+        self.client = pymongo.MongoClient(environ['MONGO_URI'])
+        db = self.client['transio']
+        self.col = db['tweets']
+
+    def on_timeout(self):
+        print("TimeOut !!")
+
+    def on_status(self, status):
+        if(self.tweet_count == self.max_tweets):
+            self.client.close()
+            return(False)
+        else:
+            try:
+                tweet = status.retweeted_status.text
+            except AttributeError as e:
+                tweet = status.text
+            self.tweet_count += 1
+            _lang = status.lang
+            self.col.insert_one({"text": tweet, "lang": _lang})
+        return True
+
+    def on_error(self, status):
+        print(status)
+        return True
+
+
 # Scripts Ends
 
 
 if __name__ == '__main__':
+    
     print("Process Starts /-/-/")
     try:
+
+        print("Data Collecting Starts /-/-/")
+        auth = OAuthHandler(consumer_key, consumer_secret)
+        auth.set_access_token(access_token, access_token_secret)
+        stream = Stream(auth, StdOutListener())
+        stream.filter(track=['up', 'bjp', 'farmlaw', "law", 'COVID', 'BB'])
+        print("Data Collecting Ends /-/-/")
+
         client = pymongo.MongoClient(environ['MONGO_URI'])
 
         # Database Name
@@ -918,8 +974,9 @@ if __name__ == '__main__':
         col = db['tweets']
 
         tweets = col.find()
+        
         for data in tweets:
-            # print(data)
+            print(data)
             try:
                 _text = data['text']
                 # Based on Lang Tag
@@ -947,8 +1004,11 @@ if __name__ == '__main__':
             _where_data = {"_id": data['_id']}
             # Update Cols
             col.update_one(_where_data, _update_data)
-
+            
     except Exception as e:
         print('Err => ', e)
 
     print("Processing Ends /-/-/-/ ")
+
+# Command to run process
+# python twitter_streaming.py > twitter__dataset.json
