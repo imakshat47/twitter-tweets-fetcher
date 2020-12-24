@@ -13,8 +13,6 @@ access_token = environ['A_TOKEN']
 access_token_secret = environ['A_SEC']
 
 # This is a basic listener that just prints received tweets to stdout.
-
-
 class StdOutListener(StreamListener):
     def __init__(self):
         super().__init__()
