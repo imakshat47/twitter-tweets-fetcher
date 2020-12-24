@@ -7,7 +7,7 @@ import string
 import json
 import dns
 import pymongo
-import enchant
+# import enchant
 import os
 from os import environ
 from google_trans_new import google_translator
