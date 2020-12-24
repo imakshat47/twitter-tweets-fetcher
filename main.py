@@ -1,19 +1,19 @@
-from os import environ
-import os
-import enchant
-import pymongo
-import dns
-import json
-import string
-import re
 import demoji
-from autocorrect import Speller
+import re
+import string
+import json
+import dns
+import pymongo
+import enchant
+import os
+from os import environ
 from google_trans_new import google_translator
 from googletrans import Translator
 translator = Translator(service_urls=[
     'translate.googleapis.com',
     'translate.google.com',
 ])
+
 
 # Scripts Starts
 
@@ -908,43 +908,47 @@ def handle_coded_emojis(processed_text):
 
 
 if __name__ == '__main__':
-
     print("Process Starts /-/-/")
-    client = pymongo.MongoClient(environ['MONGO_URI'])
+    try:
+        client = pymongo.MongoClient(environ['MONGO_URI'])
 
-    # Database Name
-    db = client['transio']
-    # Collection Name
-    col = db['tweets']
+        # Database Name
+        db = client['transio']
+        # Collection Name
+        col = db['tweets']
 
-    tweets = col.find()
-    for data in tweets:
-        # print(data)
-        try:
-            _text = data['text']
-            # Based on Lang Tag
-            _trans_text = translate_text(data['text'], tgt_lang=data['lang'])
-            # also available are en_GB, fr_FR, etc
-            dictionary = enchant.Dict("en_US")
-            _status = dictionary.check(_trans_text)
+        tweets = col.find()
+        for data in tweets:
+            # print(data)
+            try:
+                _text = data['text']
+                # Based on Lang Tag
+                _trans_text = translate_text(
+                    data['text'], tgt_lang=data['lang'])
+                # also available are en_GB, fr_FR, etc
+                dictionary = enchant.Dict("en_US")
+                _status = dictionary.check(_trans_text)
 
-            # Translated Text Array
-            _trans_arr = []
-            for lang in ['pa', 'bn', 'en', 'fr', 'gu', 'de', 'gu', 'hi', 'kn', 'mr', 'ne', 'sd', 'ta', 'ur']:
-                _trans_text = translate_text(data['text'], tgt_lang=lang)
-                _trans_arr.append(
-                    {"lang": lang, "translated": _trans_text, "status": dictionary.check(_trans_text)})
+                # Translated Text Array
+                _trans_arr = []
+                for lang in ['pa', 'bn', 'en', 'fr', 'gu', 'de', 'gu', 'hi', 'kn', 'mr', 'ne', 'sd', 'ta', 'ur']:
+                    _trans_text = translate_text(data['text'], tgt_lang=lang)
+                    _trans_arr.append(
+                        {"lang": lang, "translated": _trans_text, "status": dictionary.check(_trans_text)})
 
-        except TypeError as e:
-            print('Err => ', e)
-            pass
+            except TypeError as e:
+                print('Err => ', e)
+                pass
 
-        # Update Data
-        _update_data = {"$set": {"trans_text": _trans_text,
-                                 "status": _status, "translated_arr": _trans_arr}}
-        # Where Data
-        _where_data = {"_id": data['_id']}
-        # Update Cols
-        col.update_one(_where_data, _update_data)
+            # Update Data
+            _update_data = {"$set": {"trans_text": _trans_text,
+                                     "status": _status, "translated_arr": _trans_arr}}
+            # Where Data
+            _where_data = {"_id": data['_id']}
+            # Update Cols
+            col.update_one(_where_data, _update_data)
+
+    except Exception as e:
+        print('Err => ', e)
 
     print("Processing Ends /-/-/-/ ")
