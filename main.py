@@ -921,7 +921,6 @@ if __name__ == '__main__':
     tweets = col.find()
     for data in tweets:
         # print(data)
-
         try:
             _text = data['text']
             # Based on Lang Tag
@@ -940,6 +939,7 @@ if __name__ == '__main__':
         except TypeError as e:
             print('Err => ', e)
             pass
+        
         # Update Data
         _update_data = {"$set": {"trans_text": _trans_text,
                                  "status": _status, "translated_arr": _trans_arr}}
