@@ -17,6 +17,9 @@ translator = Translator(service_urls=[
     'translate.google.com',
 ])
 
+# run only once after installing module
+demoji.download_codes()
+
 
 # Scripts Starts
 
