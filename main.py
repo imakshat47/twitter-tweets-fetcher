@@ -955,16 +955,16 @@ class StdOutListener(StreamListener):
 
 
 if __name__ == '__main__':
-    
+
     print("Process Starts /-/-/")
     try:
 
-        print("Data Collecting Starts /-/-/")
-        auth = OAuthHandler(consumer_key, consumer_secret)
-        auth.set_access_token(access_token, access_token_secret)
-        stream = Stream(auth, StdOutListener())
-        stream.filter(track=['up', 'bjp', 'farmlaw', "law", 'COVID', 'BB'])
-        print("Data Collecting Ends /-/-/")
+        # print("Data Collecting Starts /-/-/")
+        # auth = OAuthHandler(consumer_key, consumer_secret)
+        # auth.set_access_token(access_token, access_token_secret)
+        # stream = Stream(auth, StdOutListener())
+        # stream.filter(track=['up', 'bjp', 'farmlaw', "law", 'COVID', 'BB'])
+        # print("Data Collecting Ends /-/-/")
 
         client = pymongo.MongoClient(environ['MONGO_URI'])
 
@@ -974,7 +974,7 @@ if __name__ == '__main__':
         col = db['tweets']
 
         tweets = col.find()
-        
+
         for data in tweets:
             print(data)
             try:
@@ -983,28 +983,28 @@ if __name__ == '__main__':
                 _trans_text = translate_text(
                     data['text'], tgt_lang=data['lang'])
                 # also available are en_GB, fr_FR, etc
-                dictionary = enchant.Dict("en_US")
-                _status = dictionary.check(_trans_text)
+                # dictionary = enchant.Dict("en_US")
+                # _status = dictionary.check(_trans_text)
 
                 # Translated Text Array
                 _trans_arr = []
                 for lang in ['pa', 'bn', 'en', 'fr', 'gu', 'de', 'gu', 'hi', 'kn', 'mr', 'ne', 'sd', 'ta', 'ur']:
                     _trans_text = translate_text(data['text'], tgt_lang=lang)
                     _trans_arr.append(
-                        {"lang": lang, "translated": _trans_text, "status": dictionary.check(_trans_text)})
-
+                        {"lang": lang, "translated": _trans_text})
+                # , "status": dictionary.check(_trans_text)
             except TypeError as e:
                 print('Err => ', e)
                 pass
 
             # Update Data
-            _update_data = {"$set": {"trans_text": _trans_text,
-                                     "status": _status, "translated_arr": _trans_arr}}
+            _update_data = {
+                "$set": {"trans_text": _trans_text, "translated_arr": _trans_arr}}
             # Where Data
             _where_data = {"_id": data['_id']}
             # Update Cols
             col.update_one(_where_data, _update_data)
-            
+
     except Exception as e:
         print('Err => ', e)
 
