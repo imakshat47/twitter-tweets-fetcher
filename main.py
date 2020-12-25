@@ -944,9 +944,11 @@ class StdOutListener(StreamListener):
             try:
                 tweet = status.retweeted_status.text
             except AttributeError as e:
-                tweet = status.text
+                # tweet = status.text
+                pass
             self.tweet_count += 1
             _lang = status.lang
+            print(tweet)
             self.col.insert_one({"text": tweet, "lang": _lang})
         return True
 
@@ -963,12 +965,12 @@ if __name__ == '__main__':
     print("Process Starts /-/-/")
     try:
 
-        # print("Data Collecting Starts /-/-/")
-        # auth = OAuthHandler(consumer_key, consumer_secret)
-        # auth.set_access_token(access_token, access_token_secret)
-        # stream = Stream(auth, StdOutListener())
-        # stream.filter(track=['up', 'bjp', 'farmlaw', "law", 'COVID', 'BB'])
-        # print("Data Collecting Ends /-/-/")
+        print("Data Collecting Starts /-/-/")
+        auth = OAuthHandler(consumer_key, consumer_secret)
+        auth.set_access_token(access_token, access_token_secret)
+        stream = Stream(auth, StdOutListener())
+        stream.filter(track=['up', 'bjp', 'farmlaw', "law", 'COVID', 'BB'])
+        print("Data Collecting Ends /-/-/")
 
         client = pymongo.MongoClient(environ['MONGO_URI'])
 
@@ -980,7 +982,7 @@ if __name__ == '__main__':
         tweets = col.find()
 
         for data in tweets:
-            print(data)
+            # print(data)
             try:
                 _text = data['text']
                 # Based on Lang Tag
