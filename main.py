@@ -943,12 +943,12 @@ class StdOutListener(StreamListener):
         else:
             try:
                 tweet = status.retweeted_status.text
-                print(tweet)
+                print(" \n Tweet => ", tweet)
             except AttributeError as e:
                 # tweet = status.text
                 pass
             self.tweet_count += 1
-            _lang = status.lang            
+            _lang = status.lang
             self.col.insert_one({"text": tweet, "lang": _lang})
         return True
 
@@ -1002,7 +1002,7 @@ if __name__ == '__main__':
                 _trans_arr = []
                 for lang in ['pa', 'bn', 'en', 'fr', 'gu', 'de', 'gu', 'hi', 'kn', 'mr', 'ne', 'sd', 'ta', 'ur']:
                     __trans_text = translate_text(data['text'], tgt_lang=lang)
-                    print(__trans_text)
+                    print(" \n Trans Text => ",__trans_text)
                     __ratio = SequenceMatcher(
                         None, _trans_text, __trans_text).ratio()*100
                     __polarity = TextBlob(__trans_text).sentiment.polarity
