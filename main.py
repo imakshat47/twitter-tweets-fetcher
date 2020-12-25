@@ -7,7 +7,8 @@ import string
 import json
 import dns
 import pymongo
-# import enchant
+from textblob import TextBlob
+from difflib import SequenceMatcher
 import os
 from os import environ
 from google_trans_new import google_translator
@@ -985,6 +986,12 @@ if __name__ == '__main__':
                 # Based on Lang Tag
                 _trans_text = translate_text(
                     data['text'], tgt_lang=data['lang'])
+
+                # Checking Polarity n Match ration
+                # _ratio = SequenceMatcher(
+                #     None, data['text'], _trans_text).ratio()
+                _polarity = TextBlob(_trans_text).sentiment.polarity
+
                 # also available are en_GB, fr_FR, etc
                 # dictionary = enchant.Dict("en_US")
                 # _status = dictionary.check(_trans_text)
@@ -992,21 +999,25 @@ if __name__ == '__main__':
                 # Translated Text Array
                 _trans_arr = []
                 for lang in ['pa', 'bn', 'en', 'fr', 'gu', 'de', 'gu', 'hi', 'kn', 'mr', 'ne', 'sd', 'ta', 'ur']:
-                    _trans_text = translate_text(data['text'], tgt_lang=lang)
+                    __trans_text = translate_text(data['text'], tgt_lang=lang)
+                    print(__trans_text)
+                    __ratio = SequenceMatcher(
+                        None, _trans_text, __trans_text).ratio()*100
+                    __polarity = TextBlob(__trans_text).sentiment.polarity
                     _trans_arr.append(
-                        {"lang": lang, "translated": _trans_text})
-                # , "status": dictionary.check(_trans_text)
+                        {"lang": lang, "trans_text": __trans_text, "ratio": str(__ratio), "polarity": __polarity})
+
             except TypeError as e:
                 print('Err => ', e)
                 pass
 
-            # Update Data
-            _update_data = {
-                "$set": {"trans_text": _trans_text, "translated_arr": _trans_arr}}
-            # Where Data
-            _where_data = {"_id": data['_id']}
-            # Update Cols
-            col.update_one(_where_data, _update_data)
+        # Update Data
+        _update_data = {
+            "$set": {"trans_text": _trans_text, "polarity": _polarity, "translated_arr": _trans_arr}}
+        # Where Data
+        _where_data = {"_id": data['_id']}
+        # Update Cols
+        col.update_one(_where_data, _update_data)
 
     except Exception as e:
         print('Err => ', e)
