@@ -943,12 +943,12 @@ class StdOutListener(StreamListener):
         else:
             try:
                 tweet = status.retweeted_status.text
+                print(tweet)
             except AttributeError as e:
                 # tweet = status.text
                 pass
             self.tweet_count += 1
-            _lang = status.lang
-            print(tweet)
+            _lang = status.lang            
             self.col.insert_one({"text": tweet, "lang": _lang})
         return True
 
