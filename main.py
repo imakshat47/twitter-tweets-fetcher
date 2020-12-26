@@ -944,17 +944,18 @@ class StdOutListener(StreamListener):
             try:
                 __tweet = data
                 _tweet = json.loads(__tweet)
-                tweet = _tweet['retweeted_status']['text']
+                tweet = _tweet['retweeted_status']['text']                
+                _lang = _tweet['lang']
+                self.col.insert_one({"text": tweet, "lang": _lang})
             except Exception as e:
                 try:
-                    tweet = _tweet['extended_tweet']['full_text']
+                    tweet = _tweet['extended_tweet']['full_text']                    
+                    _lang = _tweet['lang']
+                    self.col.insert_one({"text": tweet, "lang": _lang})
                 except Exception as e:
-                    pass
+                    pass                    
 
             self.tweet_count += 1
-
-            _lang = _tweet['lang']
-            self.col.insert_one({"text": tweet, "lang": _lang})
         return True
 
     def on_error(self, status):
