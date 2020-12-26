@@ -931,25 +931,30 @@ class StdOutListener(StreamListener):
         self.tweets = []
         self.client = pymongo.MongoClient(environ['MONGO_URI'])
         db = self.client['transio']
-        self.col = db['tweets']
+        self.col = db['translated_tweets']
 
     def on_timeout(self):
         print("TimeOut !!")
 
-    def on_status(self, status):
+    def on_data(self, data):
         if(self.tweet_count == self.max_tweets):
             self.client.close()
             return(False)
         else:
             try:
-                tweet = status.retweeted_status.text
-                print(" \n Tweet => ", tweet)
-                _lang = status.lang
-                self.col.insert_one({"text": tweet, "lang": _lang})
+                __tweet = data
+                _tweet = json.loads(__tweet)
+                tweet = _tweet['retweeted_status']['text']
             except Exception as e:
-                # tweet = status.text
-                pass
+                try:
+                    tweet = _tweet['extended_tweet']['full_text']
+                except Exception as e:
+                    pass
+
             self.tweet_count += 1
+
+            _lang = _tweet['lang']
+            self.col.insert_one({"text": tweet, "lang": _lang})
         return True
 
     def on_error(self, status):
@@ -972,54 +977,54 @@ if __name__ == '__main__':
         stream.filter(track=['up', 'bjp', 'farmlaw', "law", 'COVID', 'BB'])
         print("Data Collecting Ends /-/-/")
 
-        client = pymongo.MongoClient(environ['MONGO_URI'])
+        # client = pymongo.MongoClient(environ['MONGO_URI'])
 
-        # Database Name
-        db = client['transio']
-        # Collection Name
-        col = db['tweets']
+        # # Database Name
+        # db = client['transio']
+        # # Collection Name
+        # col = db['tweets']
 
-        tweets = col.find()
+        # tweets = col.find()
 
-        for data in tweets:
-            # print(data)
-            try:
-                _text = data['text']
-                # Based on Lang Tag
-                _trans_text = translate_text(
-                    data['text'], tgt_lang=data['lang'])
+        # for data in tweets:
+        #     # print(data)
+        #     try:
+        #         _text = data['text']
+        #         # Based on Lang Tag
+        #         _trans_text = translate_text(
+        #             data['text'], tgt_lang=data['lang'])
 
-                # Checking Polarity n Match ration
-                # _ratio = SequenceMatcher(
-                #     None, data['text'], _trans_text).ratio()
-                _polarity = TextBlob(_trans_text).sentiment.polarity
+        #         # Checking Polarity n Match ration
+        #         # _ratio = SequenceMatcher(
+        #         #     None, data['text'], _trans_text).ratio()
+        #         _polarity = TextBlob(_trans_text).sentiment.polarity
 
-                # also available are en_GB, fr_FR, etc
-                # dictionary = enchant.Dict("en_US")
-                # _status = dictionary.check(_trans_text)
+        #         # also available are en_GB, fr_FR, etc
+        #         # dictionary = enchant.Dict("en_US")
+        #         # _status = dictionary.check(_trans_text)
 
-                # Translated Text Array
-                _trans_arr = []
-                for lang in ['pa', 'bn', 'en', 'fr', 'gu', 'de', 'gu', 'hi', 'kn', 'mr', 'ne', 'sd', 'ta', 'ur']:
-                    __trans_text = translate_text(data['text'], tgt_lang=lang)
-                    print(" \n Trans Text => ",__trans_text)
-                    __ratio = SequenceMatcher(
-                        None, _trans_text, __trans_text).ratio()*100
-                    __polarity = TextBlob(__trans_text).sentiment.polarity
-                    _trans_arr.append(
-                        {"lang": lang, "trans_text": __trans_text, "ratio": str(__ratio), "polarity": __polarity})
+        #         # Translated Text Array
+        #         _trans_arr = []
+        #         for lang in ['pa', 'bn', 'en', 'fr', 'gu', 'de', 'gu', 'hi', 'kn', 'mr', 'ne', 'sd', 'ta', 'ur']:
+        #             __trans_text = translate_text(data['text'], tgt_lang=lang)
+        #             print(" \n Trans Text => ",__trans_text)
+        #             __ratio = SequenceMatcher(
+        #                 None, _trans_text, __trans_text).ratio()*100
+        #             __polarity = TextBlob(__trans_text).sentiment.polarity
+        #             _trans_arr.append(
+        #                 {"lang": lang, "trans_text": __trans_text, "ratio": str(__ratio), "polarity": __polarity})
 
-            except TypeError as e:
-                print('Err => ', e)
-                pass
+        #     except TypeError as e:
+        #         print('Err => ', e)
+        #         pass
 
-        # Update Data
-        _update_data = {
-            "$set": {"trans_text": _trans_text, "polarity": _polarity, "translated_arr": _trans_arr}}
-        # Where Data
-        _where_data = {"_id": data['_id']}
-        # Update Cols
-        col.update_one(_where_data, _update_data)
+        # # Update Data
+        # _update_data = {
+        #     "$set": {"trans_text": _trans_text, "polarity": _polarity, "translated_arr": _trans_arr}}
+        # # Where Data
+        # _where_data = {"_id": data['_id']}
+        # # Update Cols
+        # col.update_one(_where_data, _update_data)
 
     except Exception as e:
         print('Err => ', e)
