@@ -944,16 +944,16 @@ class StdOutListener(StreamListener):
             try:
                 __tweet = data
                 _tweet = json.loads(__tweet)
-                tweet = _tweet['retweeted_status']['text']                
+                tweet = _tweet['retweeted_status']['text']
                 _lang = _tweet['lang']
                 self.col.insert_one({"text": tweet, "lang": _lang})
             except Exception as e:
                 try:
-                    tweet = _tweet['extended_tweet']['full_text']                    
+                    tweet = _tweet['extended_tweet']['full_text']
                     _lang = _tweet['lang']
                     self.col.insert_one({"text": tweet, "lang": _lang})
                 except Exception as e:
-                    pass                    
+                    pass
 
             self.tweet_count += 1
         return True
@@ -994,39 +994,40 @@ if __name__ == '__main__':
                 _text = data['text']
                 # Based on Lang Tag
                 _trans_text = translate_text(
-                    data['text'], tgt_lang=data['lang'])
+                data['text'], tgt_lang=data['lang'])
 
                 # Checking Polarity n Match ration
                 # _ratio = SequenceMatcher(
                 #     None, data['text'], _trans_text).ratio()
                 _polarity = TextBlob(_trans_text).sentiment.polarity
-
+    
                 # also available are en_GB, fr_FR, etc
                 # dictionary = enchant.Dict("en_US")
                 # _status = dictionary.check(_trans_text)
-
+    
                 # Translated Text Array
                 _trans_arr = []
                 for lang in ['pa', 'bn', 'en', 'fr', 'gu', 'de', 'gu', 'hi', 'kn', 'mr', 'ne', 'sd', 'ta', 'ur']:
                     __trans_text = translate_text(data['text'], tgt_lang=lang)
-                    print(" \n Trans Text => ",__trans_text)
+                    # print(__trans_text)
                     __ratio = SequenceMatcher(
-                        None, _trans_text, __trans_text).ratio()*100
+                        None, _trans_text, __trans_text).ratio()
                     __polarity = TextBlob(__trans_text).sentiment.polarity
                     _trans_arr.append(
                         {"lang": lang, "trans_text": __trans_text, "ratio": str(__ratio), "polarity": __polarity})
-
-            except TypeError as e:
+                print(_trans_arr)
+            except Exception as e:
                 print('Err => ', e)
                 pass
 
-        # Update Data
-        _update_data = {
-            "$set": {"trans_text": _trans_text, "polarity": _polarity, "translated_arr": _trans_arr}}
-        # Where Data
-        _where_data = {"_id": data['_id']}
-        # Update Cols
-        col.update_one(_where_data, _update_data)
+            # Update Data
+            _update_data = {
+                "$set": {"trans_text": _trans_text, "polarity": _polarity, "translated_arr": _trans_arr}}
+            print(_update_data)
+            # Where Data
+            _where_data = {"_id": data['_id']}
+            # Update Cols
+            col.update_one(_where_data, _update_data)
 
         print("Data Translation Ends /-/-/")
     except Exception as e:
