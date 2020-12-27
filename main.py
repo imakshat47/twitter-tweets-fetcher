@@ -971,62 +971,64 @@ if __name__ == '__main__':
     print("Process Starts /-/-/")
     try:
 
-        print("Data Collecting Starts /-/-/")
-        auth = OAuthHandler(consumer_key, consumer_secret)
-        auth.set_access_token(access_token, access_token_secret)
-        stream = Stream(auth, StdOutListener())
-        stream.filter(track=['up', 'bjp', 'farmlaw', "law", 'COVID', 'BB'])
-        print("Data Collecting Ends /-/-/")
+        # print("Data Collecting Starts /-/-/")
+        # auth = OAuthHandler(consumer_key, consumer_secret)
+        # auth.set_access_token(access_token, access_token_secret)
+        # stream = Stream(auth, StdOutListener())
+        # stream.filter(track=['up', 'bjp', 'farmlaw', "law", 'COVID', 'BB'])
+        # print("Data Collecting Ends /-/-/")
 
-        # client = pymongo.MongoClient(environ['MONGO_URI'])
+        print("Data Translation Starts /-/-/")
+        client = pymongo.MongoClient(environ['MONGO_URI'])
 
-        # # Database Name
-        # db = client['transio']
-        # # Collection Name
-        # col = db['tweets']
+        # Database Name
+        db = client['transio']
+        # Collection Name
+        col = db['translated_tweets']
 
-        # tweets = col.find()
+        tweets = col.find()
 
-        # for data in tweets:
-        #     # print(data)
-        #     try:
-        #         _text = data['text']
-        #         # Based on Lang Tag
-        #         _trans_text = translate_text(
-        #             data['text'], tgt_lang=data['lang'])
+        for data in tweets:
+            # print(data)
+            try:
+                _text = data['text']
+                # Based on Lang Tag
+                _trans_text = translate_text(
+                    data['text'], tgt_lang=data['lang'])
 
-        #         # Checking Polarity n Match ration
-        #         # _ratio = SequenceMatcher(
-        #         #     None, data['text'], _trans_text).ratio()
-        #         _polarity = TextBlob(_trans_text).sentiment.polarity
+                # Checking Polarity n Match ration
+                # _ratio = SequenceMatcher(
+                #     None, data['text'], _trans_text).ratio()
+                _polarity = TextBlob(_trans_text).sentiment.polarity
 
-        #         # also available are en_GB, fr_FR, etc
-        #         # dictionary = enchant.Dict("en_US")
-        #         # _status = dictionary.check(_trans_text)
+                # also available are en_GB, fr_FR, etc
+                # dictionary = enchant.Dict("en_US")
+                # _status = dictionary.check(_trans_text)
 
-        #         # Translated Text Array
-        #         _trans_arr = []
-        #         for lang in ['pa', 'bn', 'en', 'fr', 'gu', 'de', 'gu', 'hi', 'kn', 'mr', 'ne', 'sd', 'ta', 'ur']:
-        #             __trans_text = translate_text(data['text'], tgt_lang=lang)
-        #             print(" \n Trans Text => ",__trans_text)
-        #             __ratio = SequenceMatcher(
-        #                 None, _trans_text, __trans_text).ratio()*100
-        #             __polarity = TextBlob(__trans_text).sentiment.polarity
-        #             _trans_arr.append(
-        #                 {"lang": lang, "trans_text": __trans_text, "ratio": str(__ratio), "polarity": __polarity})
+                # Translated Text Array
+                _trans_arr = []
+                for lang in ['pa', 'bn', 'en', 'fr', 'gu', 'de', 'gu', 'hi', 'kn', 'mr', 'ne', 'sd', 'ta', 'ur']:
+                    __trans_text = translate_text(data['text'], tgt_lang=lang)
+                    print(" \n Trans Text => ",__trans_text)
+                    __ratio = SequenceMatcher(
+                        None, _trans_text, __trans_text).ratio()*100
+                    __polarity = TextBlob(__trans_text).sentiment.polarity
+                    _trans_arr.append(
+                        {"lang": lang, "trans_text": __trans_text, "ratio": str(__ratio), "polarity": __polarity})
 
-        #     except TypeError as e:
-        #         print('Err => ', e)
-        #         pass
+            except TypeError as e:
+                print('Err => ', e)
+                pass
 
-        # # Update Data
-        # _update_data = {
-        #     "$set": {"trans_text": _trans_text, "polarity": _polarity, "translated_arr": _trans_arr}}
-        # # Where Data
-        # _where_data = {"_id": data['_id']}
-        # # Update Cols
-        # col.update_one(_where_data, _update_data)
+        # Update Data
+        _update_data = {
+            "$set": {"trans_text": _trans_text, "polarity": _polarity, "translated_arr": _trans_arr}}
+        # Where Data
+        _where_data = {"_id": data['_id']}
+        # Update Cols
+        col.update_one(_where_data, _update_data)
 
+        print("Data Translation Ends /-/-/")
     except Exception as e:
         print('Err => ', e)
 
