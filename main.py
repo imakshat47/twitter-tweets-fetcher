@@ -1052,17 +1052,17 @@ if __name__ == '__main__':
                 # pass
 
             # Update Data
-            _update_data = {
-                "$set": {"trans_text": _trans_text, "polarity": _polarity, "confidence": _confidence, "translated_arr": _trans_arr}}
+            _update_data = {"$set": {"trans_text": _trans_text, "polarity": _polarity,
+                                     "confidence": _confidence, "translated_arr": _trans_arr}}
             print(_update_data)
             print("Tweet Id => ", data['_id'])
             # Where Data
             _where_data = {"_id": data['_id']}
             # Update Cols
+
             col.update_one(_where_data, _update_data)
-            results.update_one({"_id": {"$oid":"5fef95f75ac7c779eb5b5e23"}}, {
-                "$set": {'polarity': _res_polarity, "confidence": _res_confidence, "ratio": _res_ratio}
-            })
+            results.update_one({"_id": "5fef997ed0f9f428b2b718ac"}, {"$set": {
+                               "polarity": _res_polarity, "confidence": _res_confidence, "ratio": _res_ratio}})
             print("Confidence => ", _res_confidence)
         print("Data Translation Ends /-/-/")
 
