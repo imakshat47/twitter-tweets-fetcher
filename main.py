@@ -1061,7 +1061,7 @@ if __name__ == '__main__':
             col.update_one(_where_data, _update_data)
             results.insert_one(
                 {'polarity': _res_polarity, "confidence": _res_confidence})
-            print(_res_confidence)
+            print("Confidence => ",_res_confidence)
         print("Data Translation Ends /-/-/")
 
     except Exception as e:
