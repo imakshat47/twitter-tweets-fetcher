@@ -1063,7 +1063,9 @@ if __name__ == '__main__':
             __id = __id + 1
             results.update_one({"name": "results"}, {"$set": {
                                "polarity": _res_polarity, "confidence": _res_confidence, "ratio": _res_ratio, "count": __id}})
+
             print("Confidence => ", _res_confidence)
+            
         print("Data Translation Ends /-/-/")
 
     except Exception as e:
