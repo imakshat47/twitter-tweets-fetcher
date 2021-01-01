@@ -1061,7 +1061,7 @@ if __name__ == '__main__':
             # Update Cols
 
             col.update_one(_where_data, _update_data)
-            results.update_one({"_id": "5fef997ed0f9f428b2b718ac"}, {"$set": {
+            results.update_one({"name": "results"}, {"$set": {
                                "polarity": _res_polarity, "confidence": _res_confidence, "ratio": _res_ratio}})
             print("Confidence => ", _res_confidence)
         print("Data Translation Ends /-/-/")
