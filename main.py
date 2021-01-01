@@ -1003,7 +1003,8 @@ if __name__ == '__main__':
         _res_polarity = 0.0
         _res_confidence = 0.0
         _res_ratio = 0.0
-        for data in tweets:            
+        __id = 0
+        for data in tweets:
             try:
                 _text = data['text']
                 # Based on Lang Tag
@@ -1044,7 +1045,7 @@ if __name__ == '__main__':
                     _res_ratio = (_res_ratio + float(__ratio)) / 2
                     _trans_arr.append({"lang": lang, "trans_text": __trans_text, "confidence": __confidence, "ratio": str(
                         __ratio), "polarity": __polarity})
-                
+
             except Exception as e:
                 print('Err => ', e)
                 # pass
@@ -1059,8 +1060,9 @@ if __name__ == '__main__':
             # Update Cols
 
             col.update_one(_where_data, _update_data)
+            __id = __id + 1
             results.update_one({"name": "results"}, {"$set": {
-                               "polarity": _res_polarity, "confidence": _res_confidence, "ratio": _res_ratio}})
+                               "polarity": _res_polarity, "confidence": _res_confidence, "ratio": _res_ratio, "count": __id}})
             print("Confidence => ", _res_confidence)
         print("Data Translation Ends /-/-/")
 
