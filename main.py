@@ -1002,7 +1002,7 @@ if __name__ == '__main__':
 
         _res_polarity = 0.0
         _res_confidence = 0.0
-
+        _res_ratio = 0.0
         for data in tweets:
             # print(data)
             try:
@@ -1042,7 +1042,7 @@ if __name__ == '__main__':
 
                     _res_polarity = (_res_polarity + __polarity) / 2
                     _res_confidence = (_res_confidence + __confidence) / 2
-
+                    _res_ratio = (_res_ratio + float(__ratio)) / 2
                     _trans_arr.append({"lang": lang, "trans_text": __trans_text, "confidence": __confidence, "ratio": str(
                         __ratio), "polarity": __polarity})
 
@@ -1055,13 +1055,15 @@ if __name__ == '__main__':
             _update_data = {
                 "$set": {"trans_text": _trans_text, "polarity": _polarity, "confidence": _confidence, "translated_arr": _trans_arr}}
             print(_update_data)
+            print("Tweet Id => ", data['_id'])
             # Where Data
             _where_data = {"_id": data['_id']}
             # Update Cols
             col.update_one(_where_data, _update_data)
-            results.insert_one(
-                {'polarity': _res_polarity, "confidence": _res_confidence})
-            print("Confidence => ",_res_confidence)
+            results.update_one({"_id": "5fef95f75ac7c779eb5b5e23"}, {
+                "$set": {'polarity': _res_polarity, "confidence": _res_confidence, "ratio": _res_ratio}
+            })
+            print("Confidence => ", _res_confidence)
         print("Data Translation Ends /-/-/")
 
     except Exception as e:
