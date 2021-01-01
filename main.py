@@ -1015,9 +1015,10 @@ if __name__ == '__main__':
                 _res_polarity = (_res_polarity + _polarity) / 2
                 # translator Initiated
                 translator = google_translator()
-                _confidence = str(detect_langs(str(_text))[0]).split(':')[1]
+                _confidence = float(
+                    str(detect_langs(str(_text))[0]).split(':')[1])
 
-                _res_confidence = (_res_confidence + int(_confidence)) / 2
+                _res_confidence = (_res_confidence + _confidence) / 2
                 # also available are en_GB, fr_FR, etc
                 # dictionary = enchant.Dict("en_US")
                 # _status = dictionary.check(_trans_text)
@@ -1033,7 +1034,7 @@ if __name__ == '__main__':
                     __ratio = SequenceMatcher(
                         None, _trans_text, __trans_text).ratio()
                     __polarity = TextBlob(__trans_text).sentiment.polarity
-                    __confidence = int(
+                    __confidence = float(
                         str(detect_langs(str(__trans_text))[0]).split(':')[1])
 
                     try:
