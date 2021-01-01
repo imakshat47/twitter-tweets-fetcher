@@ -1065,7 +1065,7 @@ if __name__ == '__main__':
                                "polarity": _res_polarity, "confidence": _res_confidence, "ratio": _res_ratio, "count": __id}})
 
             print("Confidence => ", _res_confidence)
-            
+
         print("Data Translation Ends /-/-/")
 
     except Exception as e:
@@ -1074,4 +1074,5 @@ if __name__ == '__main__':
     print("Processing Ends /-/-/-/ ")
 
 # Command to run process
+
 # python twitter_streaming.py > twitter__dataset.json
