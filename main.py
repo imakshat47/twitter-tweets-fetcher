@@ -1,6 +1,7 @@
 from tweepy import Stream
 from tweepy import OAuthHandler
 from tweepy.streaming import StreamListener
+from langdetect import detect_langs
 import demoji
 import re
 import string
@@ -14,8 +15,9 @@ from os import environ
 from google_trans_new import google_translator
 from googletrans import Translator
 translator = Translator(service_urls=[
-    'translate.googleapis.com',
     'translate.google.com',
+    'translate.google.co.kr',
+    'translate.googleapis.com',
 ])
 
 # run only once after installing module
@@ -994,17 +996,19 @@ if __name__ == '__main__':
                 _text = data['text']
                 # Based on Lang Tag
                 _trans_text = translate_text(
-                data['text'], tgt_lang=data['lang'])
+                    data['text'], tgt_lang=data['lang'])
 
                 # Checking Polarity n Match ration
                 # _ratio = SequenceMatcher(
                 #     None, data['text'], _trans_text).ratio()
                 _polarity = TextBlob(_trans_text).sentiment.polarity
-    
+                # translator Initiated
+                translator = google_translator()
+                _confidence = str(detect_langs(str(_text))[0]).split(':')[1]
                 # also available are en_GB, fr_FR, etc
                 # dictionary = enchant.Dict("en_US")
                 # _status = dictionary.check(_trans_text)
-    
+
                 # Translated Text Array
                 _trans_arr = []
                 for lang in ['pa', 'bn', 'en', 'fr', 'gu', 'de', 'gu', 'hi', 'kn', 'mr', 'ne', 'sd', 'ta', 'ur']:
@@ -1013,16 +1017,19 @@ if __name__ == '__main__':
                     __ratio = SequenceMatcher(
                         None, _trans_text, __trans_text).ratio()
                     __polarity = TextBlob(__trans_text).sentiment.polarity
+                    __confidence = str(detect_langs(
+                        str(__trans_text))[0]).split(':')[1]
                     _trans_arr.append(
-                        {"lang": lang, "trans_text": __trans_text, "ratio": str(__ratio), "polarity": __polarity})
+                        {"lang": lang, "trans_text": __trans_text, "confidence": __confidence, "ratio": str(__ratio), "polarity": __polarity})
                 print(_trans_arr)
+
             except Exception as e:
                 print('Err => ', e)
                 pass
 
             # Update Data
             _update_data = {
-                "$set": {"trans_text": _trans_text, "polarity": _polarity, "translated_arr": _trans_arr}}
+                "$set": {"trans_text": _trans_text, "polarity": _polarity, "confidence": _confidence, "translated_arr": _trans_arr}}
             print(_update_data)
             # Where Data
             _where_data = {"_id": data['_id']}
@@ -1030,6 +1037,7 @@ if __name__ == '__main__':
             col.update_one(_where_data, _update_data)
 
         print("Data Translation Ends /-/-/")
+
     except Exception as e:
         print('Err => ', e)
 
