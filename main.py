@@ -1060,7 +1060,7 @@ if __name__ == '__main__':
             _where_data = {"_id": data['_id']}
             # Update Cols
             col.update_one(_where_data, _update_data)
-            results.update_one({"_id": "5fef95f75ac7c779eb5b5e23"}, {
+            results.update_one({"_id": {"$oid":"5fef95f75ac7c779eb5b5e23"}}, {
                 "$set": {'polarity': _res_polarity, "confidence": _res_confidence, "ratio": _res_ratio}
             })
             print("Confidence => ", _res_confidence)
