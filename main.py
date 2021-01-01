@@ -1022,7 +1022,7 @@ if __name__ == '__main__':
                 # Translated Text Array
                 _trans_arr = []
                 _trans_res = []
-                __res_confidence = []
+                __res__confidence = []
                 __res_polarity = []
                 for lang in ['pa', 'bn', 'en', 'fr', 'gu', 'de', 'gu', 'hi', 'kn', 'mr', 'ne', 'sd', 'ta', 'ur']:
                     __trans_text = translate_text(data['text'], tgt_lang=lang)
@@ -1037,14 +1037,14 @@ if __name__ == '__main__':
                         # does a exist in the current namespace
                         __res_polarity[lang] = (
                             __res_polarity[lang] + __polarity) / 2
-                        __res_confidence[lang] = (
-                            __res_confidence[lang] + __confidence) / 2
+                        __res__confidence[lang] = (
+                            __res__confidence[lang] + __confidence) / 2
                     except NameError:
                         __res_polarity[lang] = 0  # nope
-                        __res_confidence[lang] = 0
+                        __res__confidence[lang] = 0
                     __polarity = TextBlob(__trans_text).sentiment.polarity
                     _trans_res.append(
-                        {"lang": lang, "polarity": __res_polarity, "confidence": __res_confidence})
+                        {"lang": lang, "polarity": __res_polarity, "confidence": __res__confidence})
 
                     _trans_arr.append(
                         {"lang": lang, "trans_text": __trans_text, "confidence": __confidence, "ratio": str(__ratio), "polarity": __polarity})
