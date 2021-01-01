@@ -1061,7 +1061,7 @@ if __name__ == '__main__':
                 # print(_trans_arr)
             except Exception as e:
                 print('Err => ', e)
-                pass
+                # pass
 
             # Update Data
             _update_data = {
