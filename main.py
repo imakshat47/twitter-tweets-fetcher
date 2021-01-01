@@ -88,9 +88,14 @@ def clean_text(preprocess_text):
         preprocess_text = preprocess_text.strip(' "\'')
 
         # Replace @handle with the word USER_MENTION
+        preprocess_text = re.sub(
+            "(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", preprocess_text)
         preprocess_text = re.sub(r'@[\S]+', 'USER_MENTION', preprocess_text)
 
         # Replaces URLs with the word URL
+        preprocess_text = re.sub(
+            r'\w+:\/{2}[\d\w-]+(\.[\d\w-]+)*(?:(?:\/[^\s/]*))*', '', preprocess_text)
+        preprocess_text = re.sub(r'http\S+', '', preprocess_text)
         preprocess_text = re.sub(
             r'((www\.[\S]+)|(https://[\S]+))', 'url', preprocess_text)
 
@@ -988,8 +993,10 @@ if __name__ == '__main__':
         # Collection Name
         col = db['translated_tweets']
 
-        tweets = col.find()
+        results = db['results']
 
+        tweets = col.find()
+        _res_polarity = 0
         for data in tweets:
             # print(data)
             try:
@@ -1002,15 +1009,21 @@ if __name__ == '__main__':
                 # _ratio = SequenceMatcher(
                 #     None, data['text'], _trans_text).ratio()
                 _polarity = TextBlob(_trans_text).sentiment.polarity
+                _res_polarity = (_res_polarity + _polarity) / 2
                 # translator Initiated
                 translator = google_translator()
                 _confidence = str(detect_langs(str(_text))[0]).split(':')[1]
+
+                _res_confidence = (_res_confidence + _confidence) / 2
                 # also available are en_GB, fr_FR, etc
                 # dictionary = enchant.Dict("en_US")
                 # _status = dictionary.check(_trans_text)
 
                 # Translated Text Array
                 _trans_arr = []
+                _trans_res = []
+                __res_confidence = []
+                __res_polarity = []
                 for lang in ['pa', 'bn', 'en', 'fr', 'gu', 'de', 'gu', 'hi', 'kn', 'mr', 'ne', 'sd', 'ta', 'ur']:
                     __trans_text = translate_text(data['text'], tgt_lang=lang)
                     # print(__trans_text)
@@ -1019,6 +1032,20 @@ if __name__ == '__main__':
                     __polarity = TextBlob(__trans_text).sentiment.polarity
                     __confidence = str(detect_langs(
                         str(__trans_text))[0]).split(':')[1]
+
+                    try:
+                        # does a exist in the current namespace
+                        __res_polarity[lang] = (
+                            __res_polarity[lang] + __polarity) / 2
+                        __res_confidence[lang] = (
+                            __res_confidence[lang] + __confidence) / 2
+                    except NameError:
+                        __res_polarity[lang] = 0  # nope
+                        __res_confidence[lang] = 0
+                    __polarity = TextBlob(__trans_text).sentiment.polarity
+                    _trans_res.append(
+                        {"lang": lang, "polarity": __res_polarity, "confidence": __res_confidence})
+
                     _trans_arr.append(
                         {"lang": lang, "trans_text": __trans_text, "confidence": __confidence, "ratio": str(__ratio), "polarity": __polarity})
                 print(_trans_arr)
@@ -1035,6 +1062,8 @@ if __name__ == '__main__':
             _where_data = {"_id": data['_id']}
             # Update Cols
             col.update_one(_where_data, _update_data)
+            results.update_one({'_id': "5fef85ed243e105100693bde"}, {
+                "$set": {'polarity': _res_polarity, "confidence": _res_confidence, "res_trans": _trans_res}})
 
         print("Data Translation Ends /-/-/")
 
