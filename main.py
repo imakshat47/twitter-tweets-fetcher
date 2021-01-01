@@ -1003,8 +1003,7 @@ if __name__ == '__main__':
         _res_polarity = 0.0
         _res_confidence = 0.0
         _res_ratio = 0.0
-        for data in tweets:
-            # print(data)
+        for data in tweets:            
             try:
                 _text = data['text']
                 # Based on Lang Tag
@@ -1045,8 +1044,7 @@ if __name__ == '__main__':
                     _res_ratio = (_res_ratio + float(__ratio)) / 2
                     _trans_arr.append({"lang": lang, "trans_text": __trans_text, "confidence": __confidence, "ratio": str(
                         __ratio), "polarity": __polarity})
-
-                # print(_trans_arr)
+                
             except Exception as e:
                 print('Err => ', e)
                 # pass
