@@ -996,10 +996,13 @@ if __name__ == '__main__':
         results = db['results']
 
         tweets = col.find()
-        _res_polarity = 0.0
+
         _polarity = 0.0
         _confidence = 0.0
+
+        _res_polarity = 0.0
         _res_confidence = 0.0
+
         for data in tweets:
             # print(data)
             try:
@@ -1013,6 +1016,7 @@ if __name__ == '__main__':
                 #     None, data['text'], _trans_text).ratio()
                 _polarity = TextBlob(_trans_text).sentiment.polarity
                 _res_polarity = (_res_polarity + _polarity) / 2
+
                 # translator Initiated
                 translator = google_translator()
                 _confidence = float(
@@ -1024,9 +1028,6 @@ if __name__ == '__main__':
                 # _status = dictionary.check(_trans_text)
 
                 # Translated Text Array
-                _trans_res = []
-                __res__confidence = []
-                __res_polarity = []
                 _trans_arr = []
                 for lang in ['pa', 'bn', 'en', 'fr', 'gu', 'de', 'gu', 'hi', 'kn', 'mr', 'ne', 'sd', 'ta', 'ur']:
                     __trans_text = translate_text(data['text'], tgt_lang=lang)
@@ -1037,26 +1038,13 @@ if __name__ == '__main__':
                     __confidence = float(
                         str(detect_langs(str(__trans_text))[0]).split(':')[1])
 
-                    try:
-                        # does a exist in the current namespace
-                        __res_polarity[lang] = (
-                            __res_polarity[lang] + __polarity) / 2
-                    except NameError:
-                        __res_polarity[lang] = 0  # nope
-
-                    try:
-                        __res__confidence[lang] = (
-                            __res__confidence[lang] + __confidence) / 2
-                    except NameError:
-                        __res__confidence[lang] = 0
-
                     __polarity = TextBlob(__trans_text).sentiment.polarity
+
+                    _res_polarity = (_res_polarity + __polarity) / 2
+                    _res_confidence = (_res_confidence + __confidence) / 2
 
                     _trans_arr.append({"lang": lang, "trans_text": __trans_text, "confidence": __confidence, "ratio": str(
                         __ratio), "polarity": __polarity})
-
-                    _trans_res.append(
-                        {"lang": lang, "polarity": __res_polarity, "confidence": __res__confidence})
 
                 # print(_trans_arr)
             except Exception as e:
@@ -1071,12 +1059,9 @@ if __name__ == '__main__':
             _where_data = {"_id": data['_id']}
             # Update Cols
             col.update_one(_where_data, _update_data)
-            _update_data = {"$set": {'polarity': _res_polarity,
-                                     "confidence": _res_confidence, "res_trans": _trans_res}}
-            print(_update_data)
-            results.update_one(
-                {"_id": "5fef85ed243e105100693bde"}, _update_data)
-
+            results.insert_one(
+                {'polarity': _res_polarity, "confidence": _res_confidence})
+            print(_res_confidence)
         print("Data Translation Ends /-/-/")
 
     except Exception as e:
