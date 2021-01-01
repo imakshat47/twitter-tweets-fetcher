@@ -996,10 +996,10 @@ if __name__ == '__main__':
         results = db['results']
 
         tweets = col.find()
-        _res_polarity = 0
-        _polarity = 0
-        _confidence = 0
-        _res_confidence = 0
+        _res_polarity = 0.0
+        _polarity = 0.0
+        _confidence = 0.0
+        _res_confidence = 0.0
         for data in tweets:
             # print(data)
             try:
