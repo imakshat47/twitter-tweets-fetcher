@@ -1015,11 +1015,11 @@ if __name__ == '__main__':
                 # _ratio = SequenceMatcher(
                 #     None, data['text'], _trans_text).ratio()
                 _polarity = TextBlob(_trans_text).sentiment.polarity
-                _res_polarity = abs(_res_polarity - _polarity)
+                _res_polarity = abs(_res_polarity - abs(_polarity))
                 # translator Initiated
                 translator = google_translator()
                 _confidence = float(
-                    str(detect_langs(str(_text))[0]).split(':')[1])
+                    str(detect_langs(str(_text))[0]).split(':')[1])*100
 
                 _res_confidence = (_res_confidence + _confidence) / 2
                 # also available are en_GB, fr_FR, etc
@@ -1032,13 +1032,13 @@ if __name__ == '__main__':
                     __trans_text = translate_text(data['text'], tgt_lang=lang)
                     # print(__trans_text)
                     __ratio = SequenceMatcher(
-                        None, _trans_text, __trans_text).ratio()
+                        None, __trans_text, _trans_text).ratio()*100
                     __polarity = TextBlob(__trans_text).sentiment.polarity
                     __confidence = float(
-                        str(detect_langs(str(__trans_text))[0]).split(':')[1])
+                        str(detect_langs(str(__trans_text))[0]).split(':')[1])*100
 
                     # __polarity = TextBlob(__trans_text).sentiment.polarity
-                    _res_polarity = abs(_res_polarity - __polarity)
+                    _res_polarity = abs(_res_polarity - abs(float(__polarity)))
 
                     _res_confidence = (_res_confidence + __confidence) / 2
                     _res_ratio = (_res_ratio + float(__ratio)) / 2
