@@ -1014,7 +1014,7 @@ if __name__ == '__main__':
                 # Checking Polarity n Match ration
                 # _ratio = SequenceMatcher(
                 #     None, data['text'], _trans_text).ratio()
-                _polarity = TextBlob(_trans_text).sentiment.polarity                
+                _polarity = TextBlob(_trans_text).sentiment.polarity
                 _res_polarity = abs(_res_polarity - _polarity)
                 # translator Initiated
                 translator = google_translator()
@@ -1028,7 +1028,7 @@ if __name__ == '__main__':
 
                 # Translated Text Array
                 _trans_arr = []
-                for lang in ['pa', 'bn', 'en', 'fr', 'gu', 'de', 'gu', 'hi', 'kn', 'mr', 'ne', 'sd', 'ta', 'ur']:
+                for lang in ['pa', 'bn', 'en', 'fr', 'gu', 'de', 'hi', 'kn', 'mr', 'ne', 'sd', 'ta', 'ur']:
                     __trans_text = translate_text(data['text'], tgt_lang=lang)
                     # print(__trans_text)
                     __ratio = SequenceMatcher(
@@ -1039,10 +1039,10 @@ if __name__ == '__main__':
 
                     # __polarity = TextBlob(__trans_text).sentiment.polarity
                     _res_polarity = abs(_res_polarity - __polarity)
-                    
+
                     _res_confidence = (_res_confidence + __confidence) / 2
                     _res_ratio = (_res_ratio + float(__ratio)) / 2
-                    
+
                     _trans_arr.append({"lang": lang, "trans_text": __trans_text, "confidence": __confidence, "ratio": str(
                         __ratio), "polarity": __polarity})
 
