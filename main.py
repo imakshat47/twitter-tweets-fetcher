@@ -1003,7 +1003,7 @@ if __name__ == '__main__':
         _res_polarity = 0.0
         _res_confidence = 0.0
         _res_ratio = 0.0
-        __id = 0
+        __id = 4495
         for data in tweets:
             try:
                 _text = data['text']
@@ -1014,9 +1014,8 @@ if __name__ == '__main__':
                 # Checking Polarity n Match ration
                 # _ratio = SequenceMatcher(
                 #     None, data['text'], _trans_text).ratio()
-                _polarity = TextBlob(_trans_text).sentiment.polarity
-                _res_polarity = (_res_polarity + _polarity) / 2
-
+                _polarity = TextBlob(_trans_text).sentiment.polarity                
+                _res_polarity = abs(_res_polarity - _polarity)
                 # translator Initiated
                 translator = google_translator()
                 _confidence = float(
@@ -1038,11 +1037,12 @@ if __name__ == '__main__':
                     __confidence = float(
                         str(detect_langs(str(__trans_text))[0]).split(':')[1])
 
-                    __polarity = TextBlob(__trans_text).sentiment.polarity
-
-                    _res_polarity = (_res_polarity + __polarity) / 2
+                    # __polarity = TextBlob(__trans_text).sentiment.polarity
+                    _res_polarity = abs(_res_polarity - __polarity)
+                    
                     _res_confidence = (_res_confidence + __confidence) / 2
                     _res_ratio = (_res_ratio + float(__ratio)) / 2
+                    
                     _trans_arr.append({"lang": lang, "trans_text": __trans_text, "confidence": __confidence, "ratio": str(
                         __ratio), "polarity": __polarity})
 
