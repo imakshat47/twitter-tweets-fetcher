@@ -1003,7 +1003,7 @@ if __name__ == '__main__':
         _res_polarity = 0.0
         _res_confidence = 0.0
         _res_ratio = 0.0
-        __id = 4495
+        __id = 98556
         for data in tweets:
             try:
                 _text = data['text']
@@ -1031,8 +1031,8 @@ if __name__ == '__main__':
                 for lang in ['pa', 'bn', 'en', 'fr', 'gu', 'de', 'hi', 'kn', 'mr', 'ne', 'sd', 'ta', 'ur']:
                     __trans_text = translate_text(data['text'], tgt_lang=lang)
                     # print(__trans_text)
-                    __ratio = 100 - (SequenceMatcher(
-                        None, __trans_text, _trans_text).ratio()*100)
+                    __ratio = SequenceMatcher(
+                        None, _trans_text, __trans_text).ratio()*100
                     __polarity = TextBlob(__trans_text).sentiment.polarity
                     __confidence = float(
                         str(detect_langs(str(__trans_text))[0]).split(':')[1])*100
