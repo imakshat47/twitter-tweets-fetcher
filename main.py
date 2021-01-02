@@ -1031,8 +1031,8 @@ if __name__ == '__main__':
                 for lang in ['pa', 'bn', 'en', 'fr', 'gu', 'de', 'hi', 'kn', 'mr', 'ne', 'sd', 'ta', 'ur']:
                     __trans_text = translate_text(data['text'], tgt_lang=lang)
                     # print(__trans_text)
-                    __ratio = SequenceMatcher(
-                        None, __trans_text, _trans_text).ratio()*100
+                    __ratio = 100 - (SequenceMatcher(
+                        None, __trans_text, _trans_text).ratio()*100)
                     __polarity = TextBlob(__trans_text).sentiment.polarity
                     __confidence = float(
                         str(detect_langs(str(__trans_text))[0]).split(':')[1])*100
@@ -1048,12 +1048,12 @@ if __name__ == '__main__':
 
             except Exception as e:
                 print('Err => ', e)
-                # pass
+                pass
 
             # Update Data
             _update_data = {"$set": {"trans_text": _trans_text, "polarity": _polarity,
                                      "confidence": _confidence, "translated_arr": _trans_arr}}
-            print(_update_data)
+            # print(_update_data)
             print("Tweet Id => ", data['_id'])
             # Where Data
             _where_data = {"_id": data['_id']}
@@ -1061,6 +1061,7 @@ if __name__ == '__main__':
 
             col.update_one(_where_data, _update_data)
             __id = __id + 1
+            print("Count => ", __id)
             results.update_one({"name": "results"}, {"$set": {
                                "polarity": _res_polarity, "confidence": _res_confidence, "ratio": _res_ratio, "count": __id}})
 
